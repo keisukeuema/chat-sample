@@ -1,0 +1,75 @@
+@(uuid: String)
+
+@main("Welcome to Play") {
+<style>
+.hide {
+    display: none;
+}
+</style>
+<div id="page-wrapper">
+    <br />@uuid<br />
+    <div id="status">Connecting...</div>
+    <form id="username-form" action="#">
+        username
+        <input id="username" type="text" required> <br />
+        uuid
+        <input id="join-uuid" type="text" required>
+    <button id="enterButton" type="submit">Enter</button>
+    </form>
+
+    <ul id="messages"></ul>
+
+    <form class="hide" id="message-form" action="#" method="post">
+        message
+        <input id="message" required> <br />
+        uuid
+        <input id="take-uuid" type="text" required>
+        <button id="sendButton" type="submit">Send</button>
+    </form>
+</div>
+
+<script>
+window.onload = function() {
+    var ws = new WebSocket($("body").data("ws-url"));
+    var username;
+
+    ws.onerror = function(error) {
+        console.log('WebSocket Error: ' + error);
+    };
+
+    ws.onopen = function(event) {
+        $('#status').text('Connected to WebSocket');
+    };
+
+    ws.onmessage = function(event) {
+        var message = event.data;
+        $('#messages').append('<li class="received"><span>Received:</span>' + message + '</li>');
+    };
+
+    ws.onclose = function(event) {
+        $('#status').text('Disconnected from WebSocket.');
+    };
+
+    $('#enterButton').click(function(e) {
+        $('#username-form').addClass('hide');
+        $('#message-form').removeClass('hide');
+        e.preventDefault();
+        username = $('#username').val();
+        var uuid = $('#join-uuid').val();
+        console.log(username);
+        ws.send(JSON.stringify({type: 'join', username: username, uuid: uuid}));
+        $('#username').val('');
+        return false;
+    });
+
+    $('#sendButton').click(function(e) {
+        e.preventDefault();
+        var message = $('#message').val();
+        var uuid = $('#take-uuid').val();
+        ws.send(JSON.stringify({type: "talk", username: username, chatMessage: message, uuid: uuid}));
+        $('#message').val('');
+        return false;
+    });
+};
+</script>
+}

@@ -4,6 +4,7 @@ import akka.actor.ActorRef;
 import akka.stream.OverflowStrategy;
 import akka.stream.javadsl.Source;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,9 +27,35 @@ public class Publisher<T> {
 		return source;
 	}
 
-	public void broadcast(String userId, final T message) {
-		// 特定のユーザにだけ値を返す
+	/**
+	 * 全てのユーザにmessageを流す
+	 **/
+	public void broadcast(final T message){
+		//userIdがString型の場合(実際はLongなので後で直す)
+		for (String userId: this.actorRefs.keySet()){
+			ActorRef actorRef = this.actorRefs.get(userId);
+			actorRef.tell(message, ActorRef.noSender());
+		}
+	}
+	
+	/**
+	 * 特定ユーザのみmessageを流す
+	 **/
+	public void broadcastOnlyUser(String userId, final T message) {
 		ActorRef actorRef = this.actorRefs.get(userId);
 		actorRef.tell(message, ActorRef.noSender());
 	}
+	
+	/**
+	 * 複数のユーザにmessageを流す
+	 **/
+	public void broadcastOnlyGroup(ArrayList<String> userIdArray, final T message) {
+		//userIdがString型の場合(実際はLongなので後で直す)
+		for (String userId: userIdArray){
+			ActorRef actorRef = this.actorRefs.get(userId);
+			actorRef.tell(message, ActorRef.noSender());
+		}
+	}
+	
+	
 }

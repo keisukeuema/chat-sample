@@ -34,12 +34,10 @@ public class HomeController extends Controller {
 
     public WebSocket ws() {
         
-        //ここでクライアントから何らかのIDを引っ張ってこれないか？
+        //クライアントのセッションからIDを取得
         String userId = session("uuid");
         
-        
         return WebSocket.Json.accept(requestHeader -> {
-            //Long roomId = (long)1;
             Source<JsonNode, ?> source = publisher.register(userId);
             Sink<JsonNode, NotUsed> sink = Sink.actorRef(chatRoomActor, "success");
             Flow<JsonNode, JsonNode, NotUsed> flow = Flow.fromSinkAndSource(sink, source);

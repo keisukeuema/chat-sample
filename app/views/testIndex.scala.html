@@ -12,8 +12,10 @@
     <form id="username-form" action="#">
         username
         <input id="username" type="text" required> <br />
-        uuid
-        <input id="join-uuid" type="text" required>
+        uuid-1
+        <input id="join-uuid-1" type="text"> <br />
+        uuid-2
+        <input id="join-uuid-2" type="text"> <br />
     <button id="enterButton" type="submit">Enter</button>
     </form>
 
@@ -22,8 +24,10 @@
     <form class="hide" id="message-form" action="#" method="post">
         message
         <input id="message" required> <br />
-        uuid
-        <input id="take-uuid" type="text" required>
+        uuid-1
+        <input id="talk-uuid-1" type="text"> <br />
+        uuid-2
+        <input id="talk-uuid-2" type="text"> <br />      
         <button id="sendButton" type="submit">Send</button>
     </form>
 </div>
@@ -55,9 +59,12 @@ window.onload = function() {
         $('#message-form').removeClass('hide');
         e.preventDefault();
         username = $('#username').val();
-        var uuid = $('#join-uuid').val();
+        var uuid_1 = $('#join-uuid-1').val();
+        var uuid_2 = $('#join-uuid-2').val();
         console.log(username);
-        ws.send(JSON.stringify({type: 'join', username: username, uuid: uuid}));
+        //ws.send(JSON.stringify({type: 'join', username: username, uuid_1: uuid_1, uuid_2: uuid_2}));
+        ws.send(JSON.stringify({type: 'join', username: username, uuids: [uuid_1, uuid_2]}));
+        
         $('#username').val('');
         return false;
     });
@@ -65,8 +72,9 @@ window.onload = function() {
     $('#sendButton').click(function(e) {
         e.preventDefault();
         var message = $('#message').val();
-        var uuid = $('#take-uuid').val();
-        ws.send(JSON.stringify({type: "talk", username: username, chatMessage: message, uuid: uuid}));
+        var uuid_1 = $('#talk-uuid-1').val();
+        var uuid_2 = $('#talk-uuid-2').val();
+        ws.send(JSON.stringify({type: "talk", username: username, chatMessage: message, uuids: [uuid_1, uuid_2]}));
         $('#message').val('');
         return false;
     });

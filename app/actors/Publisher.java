@@ -8,15 +8,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * websocketを通して配信するクライアントを登録, データのハンドリング
+ * @author naoyabuzz, keisukeuema
+ **/
+
 public class Publisher<T> {
 
-	// actorRefというデータ構造?が複数ある？
-	// それをmap構造として保存しておく
-	public final Map<String, ActorRef> actorRefs = new HashMap<String, ActorRef>();
+	/*
+	 * actorRefというデータ構造をmapで保存しておく
+	 */
+	public final Map<Long, ActorRef> actorRefs = new HashMap<Long, ActorRef>();
 
-	public Source<T, ?> register(String userId) {
+	public Source<T, ?> register(Long userId) {
 
-		// OverflowStrategy.dropHead()は新しいデータが来たら古いデータを削除する
+		/*
+		 * OverflowStrategy.dropHead()は新しいデータが来たら古いデータを削除する
+		 */
 		Source<T, ?> source = Source.<T>actorRef(256, OverflowStrategy.dropHead()).mapMaterializedValue(actorRef -> {
 			Publisher.this.actorRefs.put(userId, actorRef);
 			return actorRef;
@@ -30,32 +39,29 @@ public class Publisher<T> {
 	/**
 	 * 全てのユーザにmessageを流す
 	 **/
-	public void broadcast(final T message){
-		//userIdがString型の場合(実際はLongなので後で直す)
-		for (String userId: this.actorRefs.keySet()){
+	public void broadcast(final T message) {
+		for (Long userId : this.actorRefs.keySet()) {
 			ActorRef actorRef = this.actorRefs.get(userId);
 			actorRef.tell(message, ActorRef.noSender());
 		}
 	}
-	
+
 	/**
 	 * 特定ユーザのみmessageを流す
 	 **/
-	public void broadcastOnlyUser(String userId, final T message) {
+	public void broadcastOnlyUser(Long userId, final T message) {
 		ActorRef actorRef = this.actorRefs.get(userId);
 		actorRef.tell(message, ActorRef.noSender());
 	}
-	
+
 	/**
 	 * 複数のユーザにmessageを流す
 	 **/
-	public void broadcastOnlyGroup(ArrayList<String> userIdArray, final T message) {
-		//userIdがString型の場合(実際はLongなので後で直す)
-		for (String userId: userIdArray){
+	public void broadcastOnlyGroup(ArrayList<Long> members, final T message) {
+		for (Long userId : members) {
 			ActorRef actorRef = this.actorRefs.get(userId);
 			actorRef.tell(message, ActorRef.noSender());
 		}
 	}
-	
-	
+
 }

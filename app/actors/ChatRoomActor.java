@@ -8,6 +8,12 @@ import static controllers.HomeController.publisher;
 
 import java.util.ArrayList;
 
+/**
+ * websocketを通してメッセージを受け取った後の処理
+ * 
+ * @author naoyabuzz, keisukeuema
+ *
+ **/
 public class ChatRoomActor extends UntypedActor {
 
 	@Override
@@ -16,37 +22,40 @@ public class ChatRoomActor extends UntypedActor {
 			JsonNode jsonMessage = (JsonNode) message;
 			String type = jsonMessage.get("type").textValue();
 
-			//複数のユーザIDを取得	
-			JsonNode userIdNode = jsonMessage.get("uuids");
-			ArrayList<String> userIdArray = new ArrayList<String>();
-			for (int count = 0; count < userIdNode.size(); count++){
-				userIdArray.add(userIdNode.get(count).textValue());
+			/*
+			 *  複数のユーザIDを取得
+			 */
+			JsonNode membersNode = jsonMessage.get("members");
+			ArrayList<Long> members = new ArrayList<Long>();
+			for (int count = 0; count < membersNode.size(); count++) {
+				Long userId = membersNode.get(count).asLong();
+				members.add(userId);
 			}
-			
+
 			switch (type) {
 
 			case "join":
 				String joinedUser = jsonMessage.get("username").asText();
 				JsonNode joinToClient = Json.newObject().put("type", "joined").put("username", joinedUser)
-						.put("uuid_1",userIdArray.get(0)).put("uuid_2",userIdArray.get(1));
+						.put("member_1", members.get(0)).put("member_2", members.get(1));
 
-				publisher.broadcastOnlyGroup(userIdArray, joinToClient);
-				//publisher.broadcastOnlyUser(userId, joinToClient);//特定のユーザに
-				//publisher.broadcast(joinToClient);//全てのユーザに
-				
+				publisher.broadcastOnlyGroup(members, joinToClient);
+				// publisher.broadcastOnlyUser(userId, joinToClient);//特定のユーザに
+				// publisher.broadcast(joinToClient);//全てのユーザに
+
 				break;
 
 			case "talk":
 				String talkedUser = jsonMessage.get("username").asText();
 				String chatMessage = jsonMessage.get("chatMessage").asText();
 				JsonNode talkToClient = Json.newObject().put("type", "talked").put("username", talkedUser)
-						.put("chatMessage", chatMessage)
-						.put("uuid_1",userIdArray.get(0)).put("uuid_2",userIdArray.get(1));
+						.put("chatMessage", chatMessage).put("member_1", members.get(0))
+						.put("member_2", members.get(1));
 
-				publisher.broadcastOnlyGroup(userIdArray, talkToClient);
-				//publisher.broadcastOnlyUser(userId, talkToClient);
-				//publisher.broadcast(talkToClient);
-				
+				publisher.broadcastOnlyGroup(members, talkToClient);
+				// publisher.broadcastOnlyUser(userId, talkToClient);
+				// publisher.broadcast(talkToClient);
+
 				break;
 
 			default:

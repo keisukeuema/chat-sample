@@ -63,7 +63,7 @@ window.onload = function() {
         var uuid_2 = $('#join-uuid-2').val();
         console.log(username);
         //ws.send(JSON.stringify({type: 'join', username: username, uuid_1: uuid_1, uuid_2: uuid_2}));
-        ws.send(JSON.stringify({type: 'join', username: username, uuids: [uuid_1, uuid_2]}));
+        ws.send(JSON.stringify({type: 'join', username: username, members: [uuid_1, uuid_2]}));
         
         $('#username').val('');
         return false;
@@ -74,7 +74,7 @@ window.onload = function() {
         var message = $('#message').val();
         var uuid_1 = $('#talk-uuid-1').val();
         var uuid_2 = $('#talk-uuid-2').val();
-        ws.send(JSON.stringify({type: "talk", username: username, chatMessage: message, uuids: [uuid_1, uuid_2]}));
+        ws.send(JSON.stringify({type: "talk", username: username, chatMessage: message, members: [uuid_1, uuid_2]}));
         $('#message').val('');
         return false;
     });

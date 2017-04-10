@@ -13,21 +13,25 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Random;
 
+import play.libs.ws.WSClient;
 import play.mvc.*;
 
 import views.html.*;
-
+//import play.libs.ws.WSClient;
 /**
  * 
  * @author naoyabuzz, keisukeuema
  *
  **/
+
 public class HomeController extends Controller {
 
 	private ActorSystem actorSystem = ActorSystem.create();
 	private ActorRef chatRoomActor = actorSystem.actorOf(Props.create(ChatRoomActor.class));
 	public static final Publisher<JsonNode> publisher = new Publisher<>();
 
+	//public final WSClient wsc;
+	
 	public Result index() {
 		/*
 		 * クライアントはindexにアクセスしたらuserIdが割り当てられる
@@ -61,4 +65,12 @@ public class HomeController extends Controller {
 			return flow;
 		});
 	}
+	
+    public static void sessionFromActor(String key, String value) {
+        //session(key, value);
+    }
+	
+    public static String sessionFromActor(String key) {
+        return session(key);
+    }
 }
